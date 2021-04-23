@@ -1,10 +1,10 @@
-from textgenrnn import textgenrnn
+#from textgenrnn import textgenrnn
 import numpy as np
 import tensorflow as tf
-import sampler
+#import sampler
 #import regex
 
-
+""" 
 def get_model_api():
     '''Return lambda function for API'''
     # 1 Initilize model once and for all and reload weights
@@ -45,7 +45,7 @@ def get_model_api():
 
     return model_api
 
-
+ """
 
 #reg_output= regex.findall(r'\X', corpus)
 
@@ -54,7 +54,7 @@ def get_tpu_model_api():
     f=open("datasets\sew_samadhi_improved.txt", "r" , encoding="utf-8")
     reg_output = f.read()
     print('output from the text file read')
-    #print(reg_output)
+    print(reg_output)
     duplicates_removed = list(dict.fromkeys(reg_output))
     #print (duplicates_removed)
 
@@ -120,6 +120,7 @@ def get_tpu_model_api():
             all_results=all_results+generated
 
         output_data = {"output": all_results}
+        print(output_data)
         return output_data
     return model_tpu_api
 

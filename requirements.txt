@@ -16,7 +16,7 @@ protobuf==3.14.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 PyJWT==1.7.1
-pyreadline==2.1
+pyreadline==1.8.0
 tensorboard-plugin-wit==1.6.0
 tensorflow==2.3.0
 termcolor==1.1.0

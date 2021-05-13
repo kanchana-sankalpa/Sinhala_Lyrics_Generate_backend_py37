@@ -51,10 +51,10 @@ def get_model_api():
 
 
 def get_tpu_model_api():
-    f=open("datasets\sew_samadhi_improved.txt", "r" , encoding="utf-8")
+    f=open("datasets/sew_samadhi_improved.txt", "r" , encoding="utf-8")
     reg_output = f.read()
     print('output from the text file read')
-    print(reg_output)
+    #print(reg_output)
     duplicates_removed = list(dict.fromkeys(reg_output))
     #print (duplicates_removed)
 

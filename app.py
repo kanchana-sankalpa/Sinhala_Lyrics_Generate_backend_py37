@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 #from server import get_model_api
 from server import get_tpu_model_api
+import os
 
 
 # define the app
@@ -56,4 +57,5 @@ def apitpu():
     return response
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)

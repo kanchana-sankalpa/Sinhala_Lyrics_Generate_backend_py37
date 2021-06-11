@@ -4,48 +4,6 @@ import tensorflow as tf
 #import sampler
 #import regex
 
-""" 
-def get_model_api():
-    '''Return lambda function for API'''
-    # 1 Initilize model once and for all and reload weights
-
-    #config_path = 'weights/Sew_file1_V1/model_V2_config.json'
-    config_path = 'weights/Sew_file1_V1/sew_v2_config.json'
-    vocab_path = 'weights/Sew_file1_V1/sew_v2_vocab.json'
-    weights_path = 'weights/Sew_file1_V1/sew_v2_weights.hdf5'
-
-    textgen = textgenrnn(config_path=config_path,
-                         vocab_path=vocab_path,
-                         weights_path=weights_path)
-    textgen.generate() #resolved a memory addressing bug of keras, DO NOT remove
-
-    def model_api(input_data):
-        # 2. pre-process input
-        punc = ["(", ")", "[",
-                "]"]  # FIXME: add other cleaning if necessary, check if not redundant with library cleaning
-        prefix = "".join(c.lower() for c in input_data if c not in punc)
-
-        # 3.0 initialize generation parameters
-        temperatures = [0.5, 0.6, 0.7] #TODO: to tweak.
-        num_line = 5
-        prefix_mode = 2  # see doc of sampler.py for mode 0,1,2
-        prefix_proba = 0.5
-
-        # 3.1 call model predict function
-        prediction = sampler.lyrics_generator(textgen, prefix,
-                                              temperatures=temperatures, num_line=num_line,
-                                              prefix_mode=prefix_mode, prefix_proba=prefix_proba)
-
-        # 4. process the output
-        output_data = {"output": prediction}
-
-        # 5. return the output for the api
-        print(output_data)
-        return output_data
-
-    return model_api
-
- """
 
 #reg_output= regex.findall(r'\X', corpus)
 
@@ -59,9 +17,6 @@ def get_tpu_model_api():
     #print (duplicates_removed)
 
     chars = duplicates_removed
-    #print (chars)
-    #chars.pop(3)
-    #print (chars)
     char_indices = dict((c, i) for i, c in enumerate(duplicates_removed))
     print(char_indices)
     indices_char = dict((i, c) for i, c in enumerate(duplicates_removed))
@@ -76,8 +31,8 @@ def get_tpu_model_api():
 # Keras requires the batch size be specified ahead of time for stateful models.
 # We use a sequence length of 1, as we will be feeding in one character at a 
 # time and predicting the next character.
-    prediction_model = lstm_model(seq_len=1, batch_size=BATCH_SIZE, stateful=True)
-    prediction_model.load_weights('weights/TPU1/bard.h5')
+    prediction_model = lstm_model(seq_len=25, batch_size=BATCH_SIZE, stateful=True)
+    prediction_model.load_weights('weights/TPU2/bard.h5')
 
     # We seed the model with our initial string, copied BATCH_SIZE times
     def model_tpu_api(input_data):
@@ -127,7 +82,7 @@ def get_tpu_model_api():
 
 EMBEDDING_DIM = 512
 
-def lstm_model(seq_len=100, batch_size=None, stateful=True):
+def lstm_model(seq_len=50, batch_size=None, stateful=True):
   """Language model: predict the next word given the current word."""
   source = tf.keras.Input(
       name='seed', shape=(seq_len,), batch_size=batch_size, dtype=tf.int32)
@@ -145,5 +100,66 @@ def transform(txt,char_indices):
     #print(element)
     #print(ord(element))
     #if ord(c) < 255
-  return np.asarray([int(char_indices.get(c)) for c in txt ], dtype=np.int32)
+    return np.asarray([int(char_indices.get(c)) for c in get_next_character(f) ], dtype=np.int32)
   #return np.asarray([ord(c) for c in txt ], dtype=np.int32)
+
+def get_next_character(f):
+  # note: assumes valid utf-8
+  c = f.read(1)
+  while c:
+    while True:
+      try:
+        yield c.decode('utf-8')
+      except UnicodeDecodeError:
+        # we've encountered a multibyte character
+        # read another byte and try again
+        c += f.read(1)
+      else:
+        # c was a valid char, and was yielded, continue
+        c = f.read(1)
+        break
+
+
+  
+""" 
+def get_model_api():
+    '''Return lambda function for API'''
+    # 1 Initilize model once and for all and reload weights
+
+    #config_path = 'weights/Sew_file1_V1/model_V2_config.json'
+    config_path = 'weights/Sew_file1_V1/sew_v2_config.json'
+    vocab_path = 'weights/Sew_file1_V1/sew_v2_vocab.json'
+    weights_path = 'weights/Sew_file1_V1/sew_v2_weights.hdf5'
+
+    textgen = textgenrnn(config_path=config_path,
+                         vocab_path=vocab_path,
+                         weights_path=weights_path)
+    textgen.generate() #resolved a memory addressing bug of keras, DO NOT remove
+
+    def model_api(input_data):
+        # 2. pre-process input
+        punc = ["(", ")", "[",
+                "]"]  # FIXME: add other cleaning if necessary, check if not redundant with library cleaning
+        prefix = "".join(c.lower() for c in input_data if c not in punc)
+
+        # 3.0 initialize generation parameters
+        temperatures = [0.5, 0.6, 0.7] #TODO: to tweak.
+        num_line = 5
+        prefix_mode = 2  # see doc of sampler.py for mode 0,1,2
+        prefix_proba = 0.5
+
+        # 3.1 call model predict function
+        prediction = sampler.lyrics_generator(textgen, prefix,
+                                              temperatures=temperatures, num_line=num_line,
+                                              prefix_mode=prefix_mode, prefix_proba=prefix_proba)
+
+        # 4. process the output
+        output_data = {"output": prediction}
+
+        # 5. return the output for the api
+        print(output_data)
+        return output_data
+
+    return model_api
+
+ """

@@ -3,12 +3,13 @@ from flask_cors import CORS
 #from server import get_model_api
 from server import get_tpu_model_api
 import os
+#print os.environ.get('ENV_01')
 
 
 # define the app
 app = Flask(__name__)
-app.config['DEBUG'] = False
-CORS(app , origins=['http://localhost:3000','localhost:3000'])  # needed for cross-domain requests, allow everything by default
+app.config['DEBUG'] = True
+CORS(app , origins=[os.environ.get('ENV_01'),os.environ.get('ENV_02'),os.environ.get('ENV_03'),os.environ.get('ENV_04'),os.environ.get('ENV_05'),os.environ.get('ENV_06') ])  # needed for cross-domain requests, allow everything by default
 
 
 # load the model
